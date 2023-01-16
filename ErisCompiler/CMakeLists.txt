@@ -1,4 +1,5 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION ${PROJECT_CMAKE_VERSION})
+set(CMAKE_CXX_STANDARD ${PROJECT_CXX_STANDARD})
 
 #importing LLVM
 find_package(LLVM REQUIRED CONFIG)
@@ -10,7 +11,7 @@ add_definitions(${LLVM_DEFINITIONS})
 
 
 # Add source to this project's executable.
-add_executable (ErisCompiler   "Driver.cpp" "Lexer.h" "Source.h" "Prelude.h" "Lexer.cpp" "Tokens.h" "Tokens.cpp")
+add_executable (ErisCompiler   "Driver.cpp" "Lexer.h" "Source.h" "Prelude.h" "Lexer.cpp" "Tokens.h" "Tokens.cpp" "ErisContext.h" "ErisContext.cpp" "Parser.h" "Parser.cpp" "AST.h" "AST.cpp")
 
 #LLVM Components provide access to the underlying libraries without having
 # to specify the libraries being used.

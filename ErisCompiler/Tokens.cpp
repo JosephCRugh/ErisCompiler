@@ -1,6 +1,8 @@
 #include "Tokens.h"
 
-std::string eris::Token::TokenKindToString(TokenKind Kind) {
+#include "ErisContext.h"
+
+std::string eris::Token::TokenKindToString(const ErisContext& Context, TokenKind Kind) {
 	switch (Kind) {
 	case TokenKind::IDENT:  return "ident";
 	case TokenKind::TK_EOF: return "eof";
@@ -12,11 +14,15 @@ std::string eris::Token::TokenKindToString(TokenKind Kind) {
 			else
 				return std::to_string(UTF8Kind);
 		}
+		
+		if (Kind >= TokenKind::__KW_START__ && Kind <= TokenKind::__KW_END__) {
+			return Context.GetKeywordAsString(Kind).str();
+		}
 		return "";
 	}
 }
 
-std::string eris::Token::GetPresentationString() const {
-	return std::string("(") + Token::TokenKindToString(Kind) +
+std::string eris::Token::GetPresentationString(const ErisContext& Context) const {
+	return std::string("(") + Token::TokenKindToString(Context, Kind) +
 		", '" + Loc.Text.str()  + "')";
 }

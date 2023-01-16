@@ -6,10 +6,12 @@
 
 namespace eris {
 
+	class ErisContext;
+
 	class Lexer {
 	public:
 
-		explicit Lexer(const SourceBuf Buffer);
+		explicit Lexer(const ErisContext& Context, const SourceBuf Buffer);
 
 		// Retrieves the next token in the
 		// buffer, ignoring comments and whitespace.
@@ -17,6 +19,7 @@ namespace eris {
 		Token NextToken();
 
 	private:
+		const ErisContext& Context;
 		const c8* CurPtr;
 		usize     LineNumber = 1;
 

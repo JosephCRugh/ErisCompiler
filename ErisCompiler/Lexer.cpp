@@ -1,7 +1,9 @@
 #include "Lexer.h"
 
-eris::Lexer::Lexer(const SourceBuf Buffer)
-	: CurPtr(Buffer.Memory) {
+#include "ErisContext.h"
+
+eris::Lexer::Lexer(const ErisContext& Context, const SourceBuf Buffer)
+	: Context(Context), CurPtr(Buffer.Memory) {
 }
 
 eris::Token eris::Lexer::NextToken() {
@@ -65,5 +67,13 @@ eris::Token eris::Lexer::NextWord() {
 	}
 
 	llvm::StringRef Text = CreateText(TokStart);
+
+	// Checking if it is a keyword.
+	TokenKind KeywordKind = Context.GetKeywordKind(Text);
+	if (KeywordKind != TokenKind::INVALID) {
+		return CreateToken(KeywordKind, CreateText(TokStart));
+	}
+
+	// Not a keyword, so it is an identifier.
 	return CreateToken(TokenKind::IDENT, Text);
 }
