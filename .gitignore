@@ -1,0 +1,10 @@
+**/cmake_install.cmake
+**/Makefile
+**/CMakeCache.txt
+**/CMakeFiles/
+*.exe
+*.o
+
+out
+CMakeSettings.json
+.vs
