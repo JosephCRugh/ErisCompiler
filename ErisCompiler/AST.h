@@ -7,14 +7,29 @@
 
 #include <llvm/ADT/DenseMap.h>
 
+#include "Identifier.h"
+
 namespace eris {
 	
+	struct FuncDecl;
+
 	// Base AST node which contains
 	// all the information AST information
 	// for a given file.
 	//
 	struct FileUnit {
-		
+
+		~FileUnit();
+
+		llvm::DenseMap<Identifier, FuncDecl*> Funcs;
+	};
+
+	struct Decl {
+		Identifier Name;
+	};
+
+	struct FuncDecl : public Decl {
+
 	};
 
 }

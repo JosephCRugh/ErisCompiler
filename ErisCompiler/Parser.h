@@ -13,7 +13,7 @@ namespace eris {
 
 		explicit Parser(ErisContext& Context, const SourceBuf Buffer);
 
-		void Parse(FileUnit* FileUnit);
+		void Parse(FileUnit* Unit);
 
 	private:
 		static const usize MAX_SAVED_TOKENS = 8;
@@ -21,9 +21,17 @@ namespace eris {
 		ErisContext& Context;
 		Lexer        Lex;
 		
+		FileUnit* Unit;
+
 		Token CTok;
 		usize SavedTokensCount = 0;
 		Token SavedTokens[MAX_SAVED_TOKENS];
+
+		void ParseType();
+
+		FuncDecl* ParseFuncDecl();
+
+		Identifier ParseIdentifier(const c8* ErrorMessage);
 
 		//===-------------------------------===//
 		// Utilities
@@ -32,12 +40,19 @@ namespace eris {
 		// Retreives the next Token from either
 		// the Lexer or the SavedTokens and
 		// stores it in CTok.
-		//
 		void NextToken();
 	
 		// Looks ahead n tokens and saves the tokens 
 		// skipped into SavedTokens.
 		Token PeekToken(u32 n);
+
+		// if the current token matches the TokenKind
+		// then it is consumed, otherwise an error is
+		// generated.
+		void Match(TokenKind Kind, const c8* Purpose = nullptr);
+		inline void Match(u8 UTF8Kind, const c8* Purpose = nullptr) {
+			return Match(static_cast<TokenKind>(UTF8Kind), Purpose);
+		}
 	};
 
 }

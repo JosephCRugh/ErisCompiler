@@ -8,13 +8,33 @@ eris::Parser::Parser(ErisContext& Context, const SourceBuf Buffer)
 	: Context(Context), Lex(Context, Buffer) {
 }
 
-void eris::Parser::Parse(FileUnit* FileUnit) {
+void eris::Parser::Parse(FileUnit* Unit) {
+	this->Unit = Unit;
+
 	NextToken(); // Prime the parser.
 
-	while (CTok.IsNot(TokenKind::TK_EOF)) {
-		llvm::outs() << CTok.GetPresentationString(Context) << '\n';
-		NextToken();
-	}
+	FuncDecl* Func = ParseFuncDecl();
+	// TODO: Will want to check here for function redeclaration.
+	Unit->Funcs.insert({ Func->Name, Func });
+
+}
+
+void eris::Parser::ParseType() {
+	NextToken(); // TODO: Actually implement.
+}
+
+eris::FuncDecl* eris::Parser::ParseFuncDecl() {
+
+	ParseType();
+
+	FuncDecl* Func = new FuncDecl;
+	Func->Name = ParseIdentifier("Expected an identifier for function declaration");
+	Match('(');
+	Match(')');
+	Match('{');
+	Match('}');
+
+	return Func;
 }
 
 //===-------------------------------===//
@@ -31,6 +51,16 @@ void eris::Parser::NextToken() {
 	}
 }
 
+eris::Identifier eris::Parser::ParseIdentifier(const c8* ErrorMessage) {
+	if (CTok.IsNot(TokenKind::IDENT)) {
+		// TODO: Report error!
+		return Identifier(); // Returning a null identifier.
+	}
+	llvm::StringRef Text = CTok.Loc.Text;
+	NextToken(); // Consuming ident token.
+	return Identifier(Text);
+}
+
 eris::Token eris::Parser::PeekToken(u32 n) {
 	assert(n != 0 && "Cannot peek zero tokens");
 	assert(n < MAX_SAVED_TOKENS && "Cannot peek more than the maximum peek token amount");
@@ -38,4 +68,12 @@ eris::Token eris::Parser::PeekToken(u32 n) {
 		SavedTokens[SavedTokensCount++] = Lex.NextToken();
 	}
 	return SavedTokens[SavedTokensCount - 1];
+}
+
+void eris::Parser::Match(TokenKind Kind, const c8* Purpose) {
+	if (CTok.Is(Kind)) {
+		NextToken(); // Consuming the matched token.
+		return;
+	}
+	// TODO: report an error
 }
