@@ -8,6 +8,7 @@
 #include <llvm/ADT/DenseMap.h>
 
 #include "Identifier.h"
+#include "Logger.h"
 
 namespace eris {
 	
@@ -20,6 +21,8 @@ namespace eris {
 	struct FileUnit {
 
 		~FileUnit();
+
+		Logger Log;
 
 		llvm::DenseMap<Identifier, FuncDecl*> Funcs;
 	};

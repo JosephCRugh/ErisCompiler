@@ -11,18 +11,19 @@ namespace eris {
 	class Parser {
 	public:
 
-		explicit Parser(ErisContext& Context, const SourceBuf Buffer);
+		explicit Parser(ErisContext& Context, const SourceBuf Buffer, FileUnit* Unit);
 
-		void Parse(FileUnit* Unit);
+		void Parse();
 
 	private:
 		static const usize MAX_SAVED_TOKENS = 8;
 
 		ErisContext& Context;
 		Lexer        Lex;
-		
-		FileUnit* Unit;
+		FileUnit*    Unit;
+		Logger&      Log;
 
+		Token PrevToken;
 		Token CTok;
 		usize SavedTokensCount = 0;
 		Token SavedTokens[MAX_SAVED_TOKENS];
@@ -52,6 +53,28 @@ namespace eris {
 		void Match(TokenKind Kind, const c8* Purpose = nullptr);
 		inline void Match(u8 UTF8Kind, const c8* Purpose = nullptr) {
 			return Match(static_cast<TokenKind>(UTF8Kind), Purpose);
+		}
+
+		void Error(Token Tok, const c8* Msg) {
+			Log.BeginError(Tok.Loc, Msg);
+			Log.EndError();
+		}
+
+		template<typename... TArgs>
+		void Error(Token Tok, const c8* Fmt, TArgs&&... Args) {
+			Log.BeginError(Tok.Loc, Fmt, std::forward<TArgs>(Args)...);
+			Log.EndError();
+		}
+
+		void Error(SourceLoc Loc, const c8* Msg) {
+			Log.BeginError(Loc, Msg);
+			Log.EndError();
+		}
+
+		template<typename... TArgs>
+		void Error(SourceLoc Loc, const c8* Fmt, TArgs&&... Args) {
+			Log.BeginError(Loc, Fmt, std::forward<TArgs>(Args)...);
+			Log.EndError();
 		}
 	};
 

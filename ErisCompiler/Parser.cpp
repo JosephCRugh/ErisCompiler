@@ -4,13 +4,11 @@
 
 #include "ErisContext.h"
 
-eris::Parser::Parser(ErisContext& Context, const SourceBuf Buffer)
-	: Context(Context), Lex(Context, Buffer) {
+eris::Parser::Parser(ErisContext& Context, const SourceBuf Buffer, FileUnit* Unit)
+	: Context(Context), Lex(Context, Buffer), Unit(Unit), Log(Unit->Log) {
 }
 
-void eris::Parser::Parse(FileUnit* Unit) {
-	this->Unit = Unit;
-
+void eris::Parser::Parse() {
 	NextToken(); // Prime the parser.
 
 	FuncDecl* Func = ParseFuncDecl();
@@ -42,6 +40,7 @@ eris::FuncDecl* eris::Parser::ParseFuncDecl() {
 //===-------------------------------===//
 
 void eris::Parser::NextToken() {
+	PrevToken = CTok;
 	if (SavedTokensCount) {
 		CTok = SavedTokens[0];
 		std::rotate(SavedTokens, SavedTokens + 1, SavedTokens + SavedTokensCount);
@@ -75,5 +74,6 @@ void eris::Parser::Match(TokenKind Kind, const c8* Purpose) {
 		NextToken(); // Consuming the matched token.
 		return;
 	}
-	// TODO: report an error
+	Error(PrevToken, "Expected '%s'%s%s", Token::TokenKindToString(Context, Kind),
+		Purpose ? " " : "", Purpose);
 }

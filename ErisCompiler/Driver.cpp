@@ -10,13 +10,13 @@ int main() {
 	Context.Initialize();
 
 	eris::SourceBuf Buffer;
-	Buffer.Memory = "void main() {}";
+	Buffer.Memory = "void main() {";
 	Buffer.Length = std::strlen(Buffer.Memory);
 
 	eris::FileUnit* Unit = new eris::FileUnit;
 
-	eris::Parser Parser(Context, Buffer);
-	Parser.Parse(Unit);
+	eris::Parser Parser(Context, Buffer, Unit);
+	Parser.Parse();
 
 	delete Unit;
 
