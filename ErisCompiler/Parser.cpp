@@ -14,7 +14,7 @@ void eris::Parser::Parse() {
 
 	FuncDecl* Func = ParseFuncDecl(ParseType());
 	// TODO: Will want to check here for function redeclaration.
-	Unit->Funcs.insert({ Func->Name, Func });
+	Unit->GlobalFuncs.insert({ Func->Name, Func });
 
 }
 

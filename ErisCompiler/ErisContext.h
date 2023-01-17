@@ -5,6 +5,11 @@
 
 #include "Tokens.h"
 
+namespace llvm {
+	class LLVMContext;
+	class Module;
+}
+
 namespace eris {
 
 	class Type;
@@ -29,7 +34,7 @@ namespace eris {
 			return TokenKeywordInvertedMap.find(static_cast<u32>(Kind))->second;
 		}
 
-			//
+		//
 		// Types
 		// --------------
 		// Integer Types
@@ -44,6 +49,10 @@ namespace eris {
 		// Other
 		Type* ErrorType;
 		Type* VoidType;
+
+		// ----- LLVM -----
+		llvm::LLVMContext& LLContext;
+		llvm::Module&      LLErisModule;
 
 	private:
 		llvm::DenseMap<llvm::StringRef, TokenKind> TokenKeywordMap;

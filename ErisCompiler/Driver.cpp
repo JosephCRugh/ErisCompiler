@@ -3,6 +3,7 @@
 
 #include "Parser.h"
 #include "ErisContext.h"
+#include "IRGen.h"
 
 int main() {
 
@@ -17,6 +18,11 @@ int main() {
 
 	eris::Parser Parser(Context, Buffer, Unit);
 	Parser.Parse();
+
+	eris::IRGenerator IRGenr(Context);
+	for (auto [Name, Func] : Unit->GlobalFuncs) {
+		IRGenr.GenFunc(Func);
+	}
 
 	delete Unit;
 

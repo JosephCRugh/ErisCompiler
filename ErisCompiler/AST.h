@@ -10,6 +10,10 @@
 #include "Identifier.h"
 #include "Logger.h"
 
+namespace llvm {
+	class Function;
+}
+
 namespace eris {
 
 	class Type;
@@ -25,7 +29,7 @@ namespace eris {
 
 		Logger Log;
 
-		llvm::DenseMap<Identifier, FuncDecl*> Funcs;
+		llvm::DenseMap<Identifier, FuncDecl*> GlobalFuncs;
 	};
 
 	struct Decl {
@@ -34,6 +38,8 @@ namespace eris {
 
 	struct FuncDecl : public Decl {
 		Type* RetTy;
+
+		llvm::Function* LLFunction = nullptr;
 	};
 
 }

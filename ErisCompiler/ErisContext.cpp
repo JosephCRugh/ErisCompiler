@@ -1,5 +1,9 @@
 #include "ErisContext.h"
 
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Intrinsics.h>
+#include <llvm/IR/DIBuilder.h>
+
 #include "Types.h"
 
 namespace eris {
@@ -20,12 +24,18 @@ eris::ErisContext::ErisContext()
 	ErrorType(new Type(TypeKind::ERROR)),
 	VoidType(new Type(TypeKind::VOID)),
 
+	LLContext(*new llvm::LLVMContext),
+	LLErisModule(*new llvm::Module("Eris Module", LLContext)),
+
 	TokenKeywordMap(NUM_KEYWORDS),
 	TokenKeywordInvertedMap(NUM_KEYWORDS)
 {
 }
 
 eris::ErisContext::~ErisContext() {
+	delete &LLErisModule;
+	delete &LLContext;
+	
 	delete Int8Type;
 	delete Int16Type;
 	delete Int32Type;
@@ -41,7 +51,15 @@ eris::ErisContext::~ErisContext() {
 void eris::ErisContext::Initialize() {
 	
 	TokenKeywordMap.insert({ "void", TokenKind::KW_VOID });
-
+	TokenKeywordMap.insert({ "i8"  , TokenKind::KW_I8   });
+	TokenKeywordMap.insert({ "i16" , TokenKind::KW_I16  });
+	TokenKeywordMap.insert({ "i32" , TokenKind::KW_I32  });
+	TokenKeywordMap.insert({ "i64" , TokenKind::KW_I64  });
+	TokenKeywordMap.insert({ "u8"  , TokenKind::KW_U8   });
+	TokenKeywordMap.insert({ "u16" , TokenKind::KW_U16  });
+	TokenKeywordMap.insert({ "u32" , TokenKind::KW_U32  });
+	TokenKeywordMap.insert({ "u64" , TokenKind::KW_U64  });
+	
 	for (const auto& [Text, Kind] : TokenKeywordMap) {
 		TokenKeywordInvertedMap.insert({ static_cast<u32>(Kind), Text });
 	}
