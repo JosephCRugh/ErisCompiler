@@ -11,7 +11,7 @@ int main() {
 	Context.Initialize();
 
 	eris::SourceBuf Buffer;
-	Buffer.Memory = "void main() {}";
+	Buffer.Memory = "i32 func() {}";
 	Buffer.Length = std::strlen(Buffer.Memory);
 
 	eris::FileUnit* Unit = new eris::FileUnit;
@@ -23,6 +23,8 @@ int main() {
 	for (auto [Name, Func] : Unit->GlobalFuncs) {
 		IRGenr.GenFunc(Func);
 	}
+
+	Context.LLErisModule.dump();
 
 	delete Unit;
 

@@ -17,12 +17,16 @@ namespace eris {
 		void GenFunc(FuncDecl* Func);
 
 	private:
-		ErisContext&      Context;
-		llvm::IRBuilder<> Builder;
+		ErisContext&       Context;
+		llvm::LLVMContext& LLContext;
+		llvm::Module&      LLModule;
+		llvm::IRBuilder<>  Builder;
 
 		void GenFuncDecl(FuncDecl* Func);
 		void GenFuncBody(FuncDecl* Func);
-		
+
+		llvm::Type* GenType(Type* Ty);
+
 	};
 }
 
