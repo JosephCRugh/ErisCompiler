@@ -11,7 +11,8 @@
 #include "Logger.h"
 
 namespace eris {
-	
+
+	class Type;
 	struct FuncDecl;
 
 	// Base AST node which contains
@@ -32,7 +33,7 @@ namespace eris {
 	};
 
 	struct FuncDecl : public Decl {
-
+		Type* RetTy;
 	};
 
 }

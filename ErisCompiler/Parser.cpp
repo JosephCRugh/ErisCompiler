@@ -3,6 +3,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include "ErisContext.h"
+#include "Types.h"
 
 eris::Parser::Parser(ErisContext& Context, const SourceBuf Buffer, FileUnit* Unit)
 	: Context(Context), Lex(Context, Buffer), Unit(Unit), Log(Unit->Log) {
@@ -11,21 +12,37 @@ eris::Parser::Parser(ErisContext& Context, const SourceBuf Buffer, FileUnit* Uni
 void eris::Parser::Parse() {
 	NextToken(); // Prime the parser.
 
-	FuncDecl* Func = ParseFuncDecl();
+	FuncDecl* Func = ParseFuncDecl(ParseType());
 	// TODO: Will want to check here for function redeclaration.
 	Unit->Funcs.insert({ Func->Name, Func });
 
 }
 
-void eris::Parser::ParseType() {
-	NextToken(); // TODO: Actually implement.
+eris::Type* eris::Parser::ParseType() {
+	eris::Type* Ty = nullptr;
+	switch (CTok.Kind) {
+	case TokenKind::KW_I8:   Ty = Context.Int8Type;   NextToken(); break;
+	case TokenKind::KW_I16:  Ty = Context.Int16Type;  NextToken(); break;
+	case TokenKind::KW_I32:  Ty = Context.Int32Type;  NextToken(); break;
+	case TokenKind::KW_I64:  Ty = Context.Int64Type;  NextToken(); break;
+	case TokenKind::KW_U8:   Ty = Context.UInt8Type;  NextToken(); break;
+	case TokenKind::KW_U16:  Ty = Context.UInt16Type; NextToken(); break;
+	case TokenKind::KW_U32:  Ty = Context.UInt32Type; NextToken(); break;
+	case TokenKind::KW_U64:  Ty = Context.UInt64Type; NextToken(); break;
+	case TokenKind::KW_VOID: Ty = Context.VoidType;   NextToken(); break;
+	default:
+		Error(CTok, "Expected valid type");
+		return Context.ErrorType;
+	}
+
+	return Ty;
 }
 
-eris::FuncDecl* eris::Parser::ParseFuncDecl() {
-
-	ParseType();
+eris::FuncDecl* eris::Parser::ParseFuncDecl(Type* RetTy) {
 
 	FuncDecl* Func = new FuncDecl;
+	Func->RetTy = RetTy;
+
 	Func->Name = ParseIdentifier("Expected an identifier for function declaration");
 	Match('(');
 	Match(')');

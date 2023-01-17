@@ -22,7 +22,16 @@ namespace eris {
 
 		__KW_START__,
 
-		KW_VOID = __KW_START__,
+		KW_I8 = __KW_START__,
+		KW_I16,
+		KW_I32,
+		KW_I64,
+		KW_U8,
+		KW_U16,
+		KW_U32,
+		KW_U64,
+
+		KW_VOID,
 
 		__KW_END__ = KW_VOID,
 

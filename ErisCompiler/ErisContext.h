@@ -6,10 +6,15 @@
 #include "Tokens.h"
 
 namespace eris {
+
+	class Type;
+
 	class ErisContext {
 	public:
 
 		ErisContext();
+
+		~ErisContext();
 
 		void Initialize();
 
@@ -23,6 +28,22 @@ namespace eris {
 		llvm::StringRef GetKeywordAsString(TokenKind Kind) const {
 			return TokenKeywordInvertedMap.find(static_cast<u32>(Kind))->second;
 		}
+
+			//
+		// Types
+		// --------------
+		// Integer Types
+		Type* Int8Type;
+		Type* Int16Type;
+		Type* Int32Type;
+		Type* Int64Type;
+		Type* UInt8Type;
+		Type* UInt16Type;
+		Type* UInt32Type;
+		Type* UInt64Type;
+		// Other
+		Type* ErrorType;
+		Type* VoidType;
 
 	private:
 		llvm::DenseMap<llvm::StringRef, TokenKind> TokenKeywordMap;

@@ -10,7 +10,7 @@ int main() {
 	Context.Initialize();
 
 	eris::SourceBuf Buffer;
-	Buffer.Memory = "void main() {";
+	Buffer.Memory = "void main() {}";
 	Buffer.Length = std::strlen(Buffer.Memory);
 
 	eris::FileUnit* Unit = new eris::FileUnit;

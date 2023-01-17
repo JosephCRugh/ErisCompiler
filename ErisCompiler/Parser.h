@@ -7,6 +7,7 @@
 namespace eris {
 
 	class ErisContext;
+	class Type;
 
 	class Parser {
 	public:
@@ -28,9 +29,9 @@ namespace eris {
 		usize SavedTokensCount = 0;
 		Token SavedTokens[MAX_SAVED_TOKENS];
 
-		void ParseType();
+		Type* ParseType();
 
-		FuncDecl* ParseFuncDecl();
+		FuncDecl* ParseFuncDecl(Type* RetTy);
 
 		Identifier ParseIdentifier(const c8* ErrorMessage);
 
