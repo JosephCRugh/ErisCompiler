@@ -24,6 +24,36 @@ eris::ErisContext::ErisContext()
 	ErrorType(new Type(TypeKind::ERROR)),
 	VoidType(new Type(TypeKind::VOID)),
 
+	BinaryOpsPrecedence({
+		{ '*', 9 },
+		{ '/', 9 },
+		{ '%', 9 },
+
+		{ '+', 8 },
+		{ '-', 8 },
+
+		{ TokenKind::LT_LT, 7 }, // <<
+		{ TokenKind::GT_GT, 7 }, // >>
+		
+		{ '<'      , 6 },
+		{ '>'      , 6 },
+		{ TokenKind::LT_EQ, 6 }, // <=
+		{ TokenKind::GT_EQ, 6 }, // >=
+		
+		{ TokenKind::EQ_EQ , 5 }, // ==
+		{ TokenKind::EXL_EQ, 5 }, // !=
+		
+		{ '&', 4 },
+		
+		{ '^', 3 },
+		
+		{ '|', 2 },
+		
+		{ TokenKind::AMP_AMP, 1 }, // &&
+		{ TokenKind::BAR_BAR, 1 }, // ||
+		
+		}),
+
 	LLContext(*new llvm::LLVMContext),
 	LLErisModule(*new llvm::Module("Eris Module", LLContext)),
 

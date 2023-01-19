@@ -2,8 +2,8 @@
 
 #include "ErisContext.h"
 
-eris::Lexer::Lexer(const ErisContext& Context, const SourceBuf Buffer)
-	: Context(Context), CurPtr(Buffer.Memory) {
+eris::Lexer::Lexer(const ErisContext& Context, Logger& Log, const SourceBuf Buffer)
+	: Context(Context), Log(Log), CurPtr(Buffer.Memory) {
 }
 
 eris::Token eris::Lexer::NextToken() {
@@ -51,11 +51,16 @@ restartLex:
 	case ')': return CreateToken(')', TokStart);
 	case '{': return CreateToken('{', TokStart);
 	case '}': return CreateToken('}', TokStart);
+	case '+': return CreateToken('+', TokStart);
+	case '-': return CreateToken('-', TokStart);
+	case '*': return CreateToken('*', TokStart);
+	case '/': return CreateToken('/', TokStart);
+	case '%': return CreateToken('%', TokStart);
 	case '\0':
 
 		return CreateToken(TokenKind::TK_EOF, TokStart);
 	default:
-		// TODO: Report Error!
+		Error(TokStart, "Unknown character: '%s'", CreateText(TokStart));
 		goto restartLex;
 	}
 }

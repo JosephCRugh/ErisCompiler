@@ -5,3 +5,14 @@ eris::FileUnit::~FileUnit() {
 		delete Func;
 	}
 }
+
+eris::FuncDecl::~FuncDecl() {
+	for (AstNode* Stmt : Stmts) {
+		delete Stmt;
+	}
+}
+
+eris::BinaryOp::~BinaryOp() {
+	delete LHS;
+	delete RHS;
+}

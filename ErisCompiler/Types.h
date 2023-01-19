@@ -33,6 +33,9 @@ namespace eris {
 		bool Is(Type* Ty) const;
 		inline bool IsNot(Type* Ty) const { return !Is(Ty); }
 
+		bool IsInt() const;
+		bool IsSigned() const;
+
 	private:
 		TypeKind Kind;
 	};

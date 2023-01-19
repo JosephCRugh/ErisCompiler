@@ -40,14 +40,15 @@ namespace eris {
 		//===-------------------------------===//
 
 		AstNode* ParseStmt();
-
 		ReturnStmt* ParseReturn();
 
 		//===-------------------------------===//
 		// Expressions
 		//===-------------------------------===//
 
-		AstNode* ParseExpr();
+		Expr* ParseExpr();
+		Expr* ParseBinaryExpr();
+		Expr* ParsePrimaryExpr();
 		NumberLiteral* ParseIntLiteral();
 
 		//===-------------------------------===//

@@ -9,7 +9,7 @@ namespace eris {
 	
 	class ErisContext;
 
-	enum class TokenKind {
+	enum TokenKind : u16 {
 		INVALID = 0,
 
 
@@ -37,6 +37,27 @@ namespace eris {
 
 		__KW_END__ = KW_RETURN,
 
+		// === Symbols ===
+
+		PLUS_EQ,     // +=
+		MINUS_EQ,    // -=
+		SLASH_EQ,    // /=
+		STAR_EQ,     // *=
+		MOD_EQ,      // %=
+		AMP_EQ,      // &=
+		BAR_EQ,      // |=
+		CRT_EQ,      // ^=
+		LT_LT,       // <<
+		GT_GT,       // >>
+		LT_LT_EQ,    // <<=
+		GT_GT_EQ,    // >>=
+		LT_EQ,       // <=
+		GT_EQ,       // >=
+		AMP_AMP,     // &&
+		BAR_BAR,     // ||
+		EQ_EQ,       // ==
+		EXL_EQ,      // !=
+
 		// === Extra ===
 		
 		IDENT,
@@ -47,23 +68,19 @@ namespace eris {
 	};
 
 	struct Token {
-		TokenKind Kind;
+		u16       Kind;
 		SourceLoc Loc;
 	
-		Token() : Kind(static_cast<TokenKind>(0)) {}
+		Token() : Kind(0) {}
 
-		Token(TokenKind Kind, SourceLoc Loc)
+		Token(u16 Kind, SourceLoc Loc)
 			: Kind(Kind), Loc(Loc) {}
 
 		// Checks if the token is of the given kind.
-		inline bool Is(TokenKind Kind) const { return this->Kind == Kind; }
-		// Checks if the token is of the UTF-8 kind.
-		inline bool Is(u8 Kind) const { return this->Kind == static_cast<TokenKind>(Kind); }
+		inline bool Is(u16 Kind) const { return this->Kind == Kind; }
 
 		// Checks if the token is not of the given kind.
-		inline bool IsNot(TokenKind Kind) const { return this->Kind != Kind; }
-		// Checks if the token is not of the UTF-8 kind.
-		inline bool IsNot(u8 Kind) const { return this->Kind != static_cast<TokenKind>(Kind); }
+		inline bool IsNot(u16 Kind) const { return this->Kind != Kind; }
 
 		static std::string TokenKindToString(const ErisContext& Context, TokenKind Kind);
 

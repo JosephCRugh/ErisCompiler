@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 #include <llvm/Support/raw_ostream.h>
+#include <stack>
 
 #include "ErisContext.h"
 #include "Types.h"
@@ -15,7 +16,7 @@ namespace eris {
 }
 
 eris::Parser::Parser(ErisContext& Context, const SourceBuf Buffer, FileUnit* Unit)
-	: Context(Context), Lex(Context, Buffer), Unit(Unit), Log(Unit->Log) {
+	: Context(Context), Lex(Context, Unit->Log, Buffer), Unit(Unit), Log(Unit->Log) {
 }
 
 void eris::Parser::Parse() {
@@ -85,7 +86,83 @@ eris::ReturnStmt* eris::Parser::ParseReturn() {
 	return Ret;
 }
 
-eris::AstNode* eris::Parser::ParseExpr() {
+//===-------------------------------===//
+// Expressions
+//===-------------------------------===//
+
+eris::Expr* eris::Parser::ParseExpr() {
+	return ParseBinaryExpr();
+}
+
+eris::Expr* eris::Parser::ParseBinaryExpr() {
+	Expr* LHS = ParsePrimaryExpr();
+
+	// Since some operations have to be delayed
+	// because of order of operations a stack
+	// is formed keeping a backlog of those operations
+	// that need to be processed later
+	struct StackUnit {
+		Token Op;
+		Expr* E;
+	};
+	std::stack<StackUnit> OpStack;
+
+	auto NewBinaryOp = [](Token OpTok, Expr* LHS, Expr* RHS) {
+		BinaryOp* BinOp = NewNode<BinaryOp>(OpTok);
+		BinOp->Op  = static_cast<usize>(OpTok.Kind);
+		BinOp->LHS = LHS;
+		BinOp->RHS = RHS;
+		BinOp->Ty = LHS->Ty; // TODO: REMOVE (and replace with semantic checking)
+		return BinOp;
+	};
+
+	Token Op = CTok;
+	Token NextOp;
+	llvm::DenseMap<u16, u32>::iterator OpItr;
+	while ((OpItr = Context.BinaryOpsPrecedence.find(Op.Kind))
+		     != Context.BinaryOpsPrecedence.end()) {
+		NextToken(); // Consuming the operator
+
+		llvm::DenseMap<u16, u32>::iterator NextOpItr;
+		Expr* RHS = ParsePrimaryExpr();
+		NextOp = CTok;
+		bool MoreOperators = (NextOpItr = Context.BinaryOpsPrecedence.find(NextOp.Kind))
+			                    != Context.BinaryOpsPrecedence.end();
+		if (MoreOperators && NextOpItr->second > OpItr->second) {
+			// Delaying the operation until later since the next operator has a
+			// higher precedence.
+			StackUnit Unit = StackUnit{ Op, LHS };
+			OpStack.push(Unit);
+			LHS = RHS;
+			Op  = NextOp;
+		} else {
+			LHS = NewBinaryOp(Op, LHS, RHS);
+
+			while (!OpStack.empty()) {
+				RHS = LHS;
+				StackUnit Unit = OpStack.top();
+				// Still possible to have the right side have higher precedence.
+				if (MoreOperators &&
+					Context.BinaryOpsPrecedence[NextOp.Kind] > Context.BinaryOpsPrecedence[Unit.Op.Kind]) {
+					LHS = RHS;
+					Op = NextOp;
+					break;
+				}
+
+				OpStack.pop();
+				LHS = Unit.E;
+
+				// Apply the binary operator!
+				LHS = NewBinaryOp(Unit.Op, LHS, RHS);
+			}
+			Op = CTok;
+		}
+	}
+
+	return LHS;
+}
+
+eris::Expr* eris::Parser::ParsePrimaryExpr() {
 	switch (CTok.Kind) {
 	// ---- Literals ----
 	case TokenKind::INT_LITERAL: return ParseIntLiteral();

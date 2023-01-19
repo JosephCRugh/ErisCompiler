@@ -94,14 +94,81 @@ llvm::Value* eris::IRGenerator::GenNode(AstNode* Node) {
 	switch (Node->Kind) {
 	case AstKind::RETURN:
 		return GenReturn(static_cast<ReturnStmt*>(Node));
+	case AstKind::BINARY_OP:
+		return GenBinaryOp(static_cast<BinaryOp*>(Node));
 	case AstKind::NUMBER_LITERAL:
 		return GenNumberLiteral(static_cast<NumberLiteral*>(Node));
 	}
 }
 
+llvm::Value* eris::IRGenerator::GenRValue(Expr* E) {
+	return GenNode(E);
+}
+
 llvm::Value* eris::IRGenerator::GenReturn(ReturnStmt* Ret) {
-	Builder.CreateRet(GenNode(Ret->Value));
+	if (Ret->Value) {
+		Builder.CreateRet(GenNode(Ret->Value));	
+	} else {
+		Builder.CreateRetVoid();
+	}
 	return nullptr;
+}
+
+llvm::Value* eris::IRGenerator::GenBinaryOp(BinaryOp* BinOp) {
+	switch (BinOp->Op) {
+	case '+': {
+		llvm::Value* LLLHS = GenRValue(BinOp->LHS);
+		llvm::Value* LLRHS = GenRValue(BinOp->RHS);
+
+		if (BinOp->Ty->IsInt()) {
+			return Builder.CreateAdd(LLLHS, LLRHS);
+		}
+		return Builder.CreateFAdd(LLLHS, LLRHS);
+	}
+	case '-': {
+		llvm::Value* LLLHS = GenRValue(BinOp->LHS);
+		llvm::Value* LLRHS = GenRValue(BinOp->RHS);
+
+		if (BinOp->Ty->IsInt()) {
+			return Builder.CreateSub(LLLHS, LLRHS);
+		}
+		return Builder.CreateFSub(LLLHS, LLRHS);
+	}
+	case '*': {
+		llvm::Value* LLLHS = GenRValue(BinOp->LHS);
+		llvm::Value* LLRHS = GenRValue(BinOp->RHS);
+
+		if (BinOp->Ty->IsInt()) {
+			return Builder.CreateMul(LLLHS, LLRHS);
+		}
+		return Builder.CreateFMul(LLLHS, LLRHS);
+	}
+	case '/': {
+		llvm::Value* LLLHS = GenRValue(BinOp->LHS);
+		llvm::Value* LLRHS = GenRValue(BinOp->RHS);
+
+		if (BinOp->Ty->IsInt()) {
+			if (BinOp->Ty->IsSigned()) {
+				return Builder.CreateSDiv(LLLHS, LLRHS);
+			} else {
+				return Builder.CreateUDiv(LLLHS, LLRHS);
+			}
+		}
+		return Builder.CreateFDiv(LLLHS, LLRHS);
+	}
+	case '%': {
+		llvm::Value* LLLHS = GenRValue(BinOp->LHS);
+		llvm::Value* LLRHS = GenRValue(BinOp->RHS);
+
+		if (BinOp->Ty->IsSigned()) {
+			return Builder.CreateSRem(LLLHS, LLRHS);
+		}
+		return Builder.CreateURem(LLLHS, LLRHS);
+	}
+	default:
+		assert(!"Unimplemented GenBinaryOP()");
+		return nullptr;
+	}
 }
 
 llvm::Value* eris::IRGenerator::GenNumberLiteral(NumberLiteral* Number) {

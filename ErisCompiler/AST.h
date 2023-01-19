@@ -19,6 +19,7 @@ namespace eris {
 	class Type;
 	struct AstNode;
 	struct FuncDecl;
+	struct Expr;
 	
 	using ScopeStmts = llvm::SmallVector<AstNode*, 8>;
 
@@ -29,6 +30,7 @@ namespace eris {
 		FUNC_DECL,
 		RETURN,
 
+		BINARY_OP,
 		NUMBER_LITERAL
 
 	};
@@ -39,7 +41,7 @@ namespace eris {
 	//
 	struct FileUnit {
 
-		~FileUnit();
+		virtual ~FileUnit();
 
 		Logger Log;
 
@@ -57,11 +59,6 @@ namespace eris {
 
 	};
 
-	struct ErrorNode : AstNode {
-		ErrorNode() :
-			AstNode(AstKind::ERROR) {}
-	};
-
 	struct Decl : AstNode {
 		Identifier Name;
 	
@@ -69,6 +66,9 @@ namespace eris {
 	};
 
 	struct FuncDecl : Decl {
+
+		virtual ~FuncDecl();
+
 		Type* RetTy;
 
 		llvm::Function* LLFunction = nullptr;
@@ -79,7 +79,7 @@ namespace eris {
 	};
 
 	struct ReturnStmt : AstNode {
-		AstNode* Value = nullptr;
+		Expr* Value = nullptr;
 
 		ReturnStmt() : AstNode(AstKind::RETURN) {}
 	};
@@ -93,6 +93,23 @@ namespace eris {
 		Type* Ty;
 
 		Expr(AstKind Kind) : AstNode(Kind) {}
+	};
+
+	struct ErrorNode : Expr {
+		ErrorNode() :
+			Expr(AstKind::ERROR) {}
+	};
+
+	struct BinaryOp : Expr {
+		
+		virtual ~BinaryOp();
+
+		usize Op;
+		Expr* LHS;
+		Expr* RHS;
+
+		BinaryOp()
+			: Expr(AstKind::BINARY_OP) {}
 	};
 
 	struct NumberLiteral : Expr {

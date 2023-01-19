@@ -4,8 +4,27 @@
 
 std::string eris::Token::TokenKindToString(const ErisContext& Context, TokenKind Kind) {
 	switch (Kind) {
-	case TokenKind::IDENT:  return "ident";
-	case TokenKind::TK_EOF: return "eof";
+	case TokenKind::IDENT:       return "ident";
+	case TokenKind::INT_LITERAL: return "int-literal";
+	case TokenKind::TK_EOF:      return "eof";
+	case TokenKind::PLUS_EQ:     return "+=";
+	case TokenKind::MINUS_EQ:    return "-=";
+	case TokenKind::SLASH_EQ:    return "/=";
+	case TokenKind::STAR_EQ:     return "*=";
+	case TokenKind::MOD_EQ:	     return "%=";
+	case TokenKind::AMP_EQ:	     return "&=";
+	case TokenKind::BAR_EQ:	     return "|=";
+	case TokenKind::CRT_EQ:	     return "^=";
+	case TokenKind::LT_LT:	     return "<<";
+	case TokenKind::GT_GT:	     return ">>";
+	case TokenKind::LT_LT_EQ:    return "<<=";
+	case TokenKind::GT_GT_EQ:    return ">>=";
+	case TokenKind::LT_EQ:       return "<=";
+	case TokenKind::GT_EQ:       return ">=";
+	case TokenKind::AMP_AMP:     return "&&";
+	case TokenKind::BAR_BAR:     return "||";
+	case TokenKind::EQ_EQ:       return "==";
+	case TokenKind::EXL_EQ:      return "!=";
 	default:
 		if (static_cast<u32>(Kind) < 256) {
 			u32 UTF8Kind = static_cast<u32>(Kind);
@@ -23,6 +42,6 @@ std::string eris::Token::TokenKindToString(const ErisContext& Context, TokenKind
 }
 
 std::string eris::Token::GetPresentationString(const ErisContext& Context) const {
-	return std::string("(") + Token::TokenKindToString(Context, Kind) +
+	return std::string("(") + Token::TokenKindToString(Context, static_cast<TokenKind>(Kind)) +
 		", '" + Loc.Text.str()  + "')";
 }

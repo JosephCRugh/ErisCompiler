@@ -1,6 +1,7 @@
 #ifndef ERIS_LEXER_H
 #define ERIS_LEXER_H
 
+#include "Logger.h"
 #include "Source.h"
 #include "Tokens.h"
 
@@ -11,7 +12,7 @@ namespace eris {
 	class Lexer {
 	public:
 
-		explicit Lexer(const ErisContext& Context, const SourceBuf Buffer);
+		explicit Lexer(const ErisContext& Context, Logger& Log, const SourceBuf Buffer);
 
 		// Retrieves the next token in the
 		// buffer, ignoring comments and whitespace.
@@ -20,6 +21,8 @@ namespace eris {
 
 	private:
 		const ErisContext& Context;
+		Logger&            Log;
+
 		const c8* CurPtr;
 		usize     LineNumber = 1;
 
@@ -41,12 +44,20 @@ namespace eris {
 			return llvm::StringRef(TokStart, CurPtr - TokStart);
 		}
 
-		inline Token CreateToken(TokenKind Kind, llvm::StringRef Text) const {
+		inline Token CreateToken(u16 Kind, llvm::StringRef Text) const {
 			return Token(Kind, SourceLoc{ Text, LineNumber });
 		}
 
-		inline Token CreateToken(u8 UTF8Kind, const c8* TokStart) const {
-			return Token(static_cast<TokenKind>(UTF8Kind), SourceLoc{ CreateText(TokStart), LineNumber });
+		void Error(SourceLoc Loc, const c8* Msg) {
+			Log.BeginError(Loc, Msg);
+			Log.EndError();
+		}
+
+		template<typename... TArgs>
+		void Error(const c8* CharPos, const c8* Fmt, TArgs&&... Args) {
+			Log.BeginError(SourceLoc{ llvm::StringRef(CharPos, 1), LineNumber },
+				Fmt, std::forward<TArgs>(Args)...);
+			Log.EndError();
 		}
 	};
 

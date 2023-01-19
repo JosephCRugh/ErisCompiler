@@ -11,7 +11,7 @@ int main() {
 	Context.Initialize();
 
 	eris::SourceBuf Buffer;
-	Buffer.Memory = "i32 func() { return 14; }";
+	Buffer.Memory = "i32 func() { return 14 * 141 + 11 / 4 - 15; }";
 	Buffer.Length = std::strlen(Buffer.Memory);
 
 	eris::FileUnit* Unit = new eris::FileUnit;

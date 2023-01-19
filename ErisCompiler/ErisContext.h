@@ -34,6 +34,9 @@ namespace eris {
 			return TokenKeywordInvertedMap.find(static_cast<u32>(Kind))->second;
 		}
 
+		// Maps a binary operator to its precedence.
+		llvm::DenseMap<u16, u32> BinaryOpsPrecedence;
+
 		//
 		// Types
 		// --------------
