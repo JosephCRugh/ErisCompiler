@@ -3,6 +3,47 @@
 #include "ErisContext.h"
 #include "Types.h"
 
+
+//===-------------------------------===//
+// Helper Functions
+//===-------------------------------===//
+
+inline llvm::Constant* GetLLInt8(i32 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt8Ty(LLContext), value, true);
+}
+inline llvm::Constant* GetLLUInt8(u32 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt8Ty(LLContext), value, false);
+}
+inline llvm::Constant* GetLLInt16(i32 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt16Ty(LLContext), value, true);
+}
+inline llvm::Constant* GetLLUInt16(u32 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt16Ty(LLContext), value, false);
+}
+inline llvm::Constant* GetLLInt32(i32 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt32Ty(LLContext), value, true);
+}
+inline llvm::Constant* GetLLUInt32(u32 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt32Ty(LLContext), value, false);
+}
+inline llvm::Constant* GetLLInt64(i64 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt64Ty(LLContext), value, true);
+}
+inline llvm::Constant* GetLLUInt64(u64 value, llvm::LLVMContext& LLContext) {
+	return llvm::ConstantInt::get(
+		llvm::IntegerType::getInt64Ty(LLContext), value, false);
+}
+
+
+
+
 eris::IRGenerator::IRGenerator(ErisContext& Context)
 	: Context(Context),
 	  LLContext(Context.LLContext),
@@ -44,6 +85,39 @@ void eris::IRGenerator::GenFuncBody(FuncDecl* Func) {
 	llvm::BasicBlock* LLEntryBlock = llvm::BasicBlock::Create(LLContext, "func.entry", Func->LLFunction);
 	Builder.SetInsertPoint(LLEntryBlock);
 
+	for (AstNode* Stmt : Func->Stmts) {
+		GenNode(Stmt);
+	}
+}
+
+llvm::Value* eris::IRGenerator::GenNode(AstNode* Node) {
+	switch (Node->Kind) {
+	case AstKind::RETURN:
+		return GenReturn(static_cast<ReturnStmt*>(Node));
+	case AstKind::NUMBER_LITERAL:
+		return GenNumberLiteral(static_cast<NumberLiteral*>(Node));
+	}
+}
+
+llvm::Value* eris::IRGenerator::GenReturn(ReturnStmt* Ret) {
+	Builder.CreateRet(GenNode(Ret->Value));
+	return nullptr;
+}
+
+llvm::Value* eris::IRGenerator::GenNumberLiteral(NumberLiteral* Number) {
+	switch (Number->Ty->GetKind()) {
+	case TypeKind::Int8:           return GetLLInt8(Number->SignedIntValue, LLContext);
+	case TypeKind::Int16:          return GetLLInt16(Number->SignedIntValue, LLContext);
+	case TypeKind::Int32:          return GetLLInt32(Number->SignedIntValue, LLContext);
+	case TypeKind::Int64:          return GetLLInt64(Number->SignedIntValue, LLContext);
+	case TypeKind::UnsignedInt8:   return GetLLUInt8(Number->SignedIntValue, LLContext);
+	case TypeKind::UnsignedInt16:  return GetLLUInt16(Number->SignedIntValue, LLContext);
+	case TypeKind::UnsignedInt32:  return GetLLUInt32(Number->SignedIntValue, LLContext);
+	case TypeKind::UnsignedInt64:  return GetLLUInt64(Number->SignedIntValue, LLContext);
+	default:
+		assert(!"Unimplemented GenNumberLiteral() case");
+		return nullptr;
+	}
 }
 
 llvm::Type* eris::IRGenerator::GenType(Type* Ty) {

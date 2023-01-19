@@ -44,11 +44,13 @@ restartLex:
 	case 'Z':
 	case '_':
 		return NextWord();
+	case '0': case '1': case '2': case '3': case '4':
+	case '5': case '6': case '7': case '8': case '9':
+		return NextNumber();
 	case '(': return CreateToken('(', TokStart);
 	case ')': return CreateToken(')', TokStart);
 	case '{': return CreateToken('{', TokStart);
 	case '}': return CreateToken('}', TokStart);
-
 	case '\0':
 
 		return CreateToken(TokenKind::TK_EOF, TokStart);
@@ -76,4 +78,16 @@ eris::Token eris::Lexer::NextWord() {
 
 	// Not a keyword, so it is an identifier.
 	return CreateToken(TokenKind::IDENT, Text);
+}
+
+eris::Token eris::Lexer::NextNumber() {
+
+	const c8* TokStart = CurPtr - 1;  // -1 since initial switch table consumes one character.
+	
+	// Leading whole digits [0-9']+
+	while (std::isdigit(*CurPtr) || *CurPtr == '\'') {
+		++CurPtr;
+	}
+
+	return CreateToken(TokenKind::INT_LITERAL, TokStart);
 }

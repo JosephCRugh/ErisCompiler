@@ -5,6 +5,15 @@
 #include "ErisContext.h"
 #include "Types.h"
 
+namespace eris {
+	template<typename N>
+	static inline N* NewNode(Token STok) {
+		N* Node = new N;
+		Node->Loc = STok.Loc;
+		return Node;
+	}
+}
+
 eris::Parser::Parser(ErisContext& Context, const SourceBuf Buffer, FileUnit* Unit)
 	: Context(Context), Lex(Context, Buffer), Unit(Unit), Log(Unit->Log) {
 }
@@ -47,9 +56,85 @@ eris::FuncDecl* eris::Parser::ParseFuncDecl(Type* RetTy) {
 	Match('(');
 	Match(')');
 	Match('{');
+	Func->Stmts.push_back(ParseStmt());
+
 	Match('}');
 
 	return Func;
+}
+
+//===-------------------------------===//
+// Statements
+//===-------------------------------===//
+
+eris::AstNode* eris::Parser::ParseStmt() {
+	AstNode* Stmt = ParseReturn();
+	Match(';');
+	return Stmt;
+}
+
+eris::ReturnStmt* eris::Parser::ParseReturn() {
+	
+	ReturnStmt* Ret = NewNode<ReturnStmt>(CTok);
+	NextToken(); // Consuming 'return' token.
+
+	if (CTok.IsNot(';')) {
+		Ret->Value = ParseExpr();
+	}
+
+	return Ret;
+}
+
+eris::AstNode* eris::Parser::ParseExpr() {
+	switch (CTok.Kind) {
+	// ---- Literals ----
+	case TokenKind::INT_LITERAL: return ParseIntLiteral();
+	// ---- Other ----
+	default:
+		Error(CTok, "Expected an expression");
+		ErrorNode* Err = NewNode<ErrorNode>(CTok);
+		NextToken(); // Shouldn't be needed but helps prevent endless looping
+		SkipRecovery();
+		return Err;
+	}
+}
+
+eris::NumberLiteral* eris::Parser::ParseIntLiteral() {
+
+	llvm::StringRef Text = CTok.Loc.Text;
+
+	// TODO: Check for overflow
+	usize Idx = 0;
+	u64 IntValue = 0;
+	while (Idx < Text.size()) {
+		c8 C = Text[Idx];
+		if (C == '\'') continue;
+		if (!std::isdigit(C)) break;
+		++Idx;
+
+		IntValue  = IntValue * 10 + ((u64)C - '0');
+	}
+
+	NumberLiteral* Number = NewNode<NumberLiteral>(CTok);
+
+	bool Unsigned = false;
+	if (IntValue <= std::numeric_limits<i32>::max()) {
+		Number->Ty = Context.Int32Type;
+	} else if (IntValue <= std::numeric_limits<i64>::max()) {
+		Number->Ty = Context.Int64Type;
+	} else {
+		Number->Ty = Context.UInt64Type;
+		Unsigned = true;
+	}
+
+	if (Unsigned) {
+		Number->UnsignedIntValue = IntValue;
+	} else {
+		Number->SignedIntValue = IntValue;
+	}
+
+	NextToken();
+	return Number;
 }
 
 //===-------------------------------===//
@@ -93,4 +178,21 @@ void eris::Parser::Match(TokenKind Kind, const c8* Purpose) {
 	}
 	Error(PrevToken, "Expected '%s'%s%s", Token::TokenKindToString(Context, Kind),
 		Purpose ? " " : "", Purpose);
+}
+
+void eris::Parser::SkipRecovery() {
+	while (true) {
+		switch (CTok.Kind) {
+		// statement keywords
+		case TokenKind::KW_RETURN:
+		// Other
+		case TokenKind::TK_EOF:
+		case static_cast<TokenKind>(';'):
+			return;
+		default:
+			// Skip and continue
+			NextToken();
+			break;
+		}
+	}
 }

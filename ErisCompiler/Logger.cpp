@@ -14,6 +14,6 @@ void eris::Logger::InternalErrorHeaderPrinting(SourceLoc Loc, const std::functio
 
 	Printer();
 
-	OS << ".";
+	OS << ".\n";
 	
 }

@@ -36,6 +36,21 @@ namespace eris {
 		Identifier ParseIdentifier(const c8* ErrorMessage);
 
 		//===-------------------------------===//
+		// Statements
+		//===-------------------------------===//
+
+		AstNode* ParseStmt();
+
+		ReturnStmt* ParseReturn();
+
+		//===-------------------------------===//
+		// Expressions
+		//===-------------------------------===//
+
+		AstNode* ParseExpr();
+		NumberLiteral* ParseIntLiteral();
+
+		//===-------------------------------===//
 		// Utilities
 		//===-------------------------------===//
 
@@ -55,6 +70,10 @@ namespace eris {
 		inline void Match(u8 UTF8Kind, const c8* Purpose = nullptr) {
 			return Match(static_cast<TokenKind>(UTF8Kind), Purpose);
 		}
+
+		// Skips tokens until it can find
+		// a valid place to start parsing again.
+		void SkipRecovery();
 
 		void Error(Token Tok, const c8* Msg) {
 			Log.BeginError(Tok.Loc, Msg);

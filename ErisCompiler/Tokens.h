@@ -33,11 +33,14 @@ namespace eris {
 
 		KW_VOID,
 
-		__KW_END__ = KW_VOID,
+		KW_RETURN,
+
+		__KW_END__ = KW_RETURN,
 
 		// === Extra ===
 		
 		IDENT,
+		INT_LITERAL,
 
 		// End of file
 		TK_EOF

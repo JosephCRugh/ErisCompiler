@@ -50,16 +50,17 @@ eris::ErisContext::~ErisContext() {
 
 void eris::ErisContext::Initialize() {
 	
-	TokenKeywordMap.insert({ "void", TokenKind::KW_VOID });
-	TokenKeywordMap.insert({ "i8"  , TokenKind::KW_I8   });
-	TokenKeywordMap.insert({ "i16" , TokenKind::KW_I16  });
-	TokenKeywordMap.insert({ "i32" , TokenKind::KW_I32  });
-	TokenKeywordMap.insert({ "i64" , TokenKind::KW_I64  });
-	TokenKeywordMap.insert({ "u8"  , TokenKind::KW_U8   });
-	TokenKeywordMap.insert({ "u16" , TokenKind::KW_U16  });
-	TokenKeywordMap.insert({ "u32" , TokenKind::KW_U32  });
-	TokenKeywordMap.insert({ "u64" , TokenKind::KW_U64  });
-	
+	TokenKeywordMap.insert({ "void"  , TokenKind::KW_VOID   });
+	TokenKeywordMap.insert({ "i8"    , TokenKind::KW_I8     });
+	TokenKeywordMap.insert({ "i16"   , TokenKind::KW_I16    });
+	TokenKeywordMap.insert({ "i32"   , TokenKind::KW_I32    });
+	TokenKeywordMap.insert({ "i64"   , TokenKind::KW_I64    });
+	TokenKeywordMap.insert({ "u8"    , TokenKind::KW_U8     });
+	TokenKeywordMap.insert({ "u16"   , TokenKind::KW_U16    });
+	TokenKeywordMap.insert({ "u32"   , TokenKind::KW_U32    });
+	TokenKeywordMap.insert({ "u64"   , TokenKind::KW_U64    });
+	TokenKeywordMap.insert({ "return", TokenKind::KW_RETURN });
+
 	for (const auto& [Text, Kind] : TokenKeywordMap) {
 		TokenKeywordInvertedMap.insert({ static_cast<u32>(Kind), Text });
 	}

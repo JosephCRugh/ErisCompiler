@@ -29,6 +29,11 @@ namespace eris {
 		// [a-zA-Z_][a-zA-Z0-9_]*
 		Token NextWord();
 
+		// The next token is a number.
+		// 
+		// [0-9']+
+		Token NextNumber();
+
 		// Utility
 		// 
 

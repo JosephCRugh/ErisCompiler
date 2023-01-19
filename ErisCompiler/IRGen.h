@@ -25,6 +25,10 @@ namespace eris {
 		void GenFuncDecl(FuncDecl* Func);
 		void GenFuncBody(FuncDecl* Func);
 
+		llvm::Value* GenNode(AstNode* Node);
+		llvm::Value* GenReturn(ReturnStmt* Ret);
+		llvm::Value* GenNumberLiteral(NumberLiteral* Number);
+
 		llvm::Type* GenType(Type* Ty);
 
 	};
